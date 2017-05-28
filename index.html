@@ -1,27 +1,46 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta name="description" content="HTML5 Audio Spectrum Visualizer">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>HTML5 Audio API showcase | Audio visualizer</title>
-        <link type="text/css" rel="stylesheet" href="style/style.css">
-    </head>   
-    <body>
-        <div id="wrapper">
-            <div id="fileWrapper" class="file_wrapper">
-                <div id="info">
-                    HTML5 Audio API showcase | An Audio Viusalizer
-                </div>
-                <label for="uploadedFile">Drag&drop or select a file to play:</label>
-                <input type="file" id="uploadedFile"></input>
-            </div>
-            <div id="visualizer_wrapper">
-                <canvas id='canvas' width="800" height="350"></canvas>
-            </div>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+    body {
+      margin: 0px;
+      font-family: "San Fransisco","SF UI Display","SFNS Display",sans-serif;
+      background: #000;
+      font-weight: bold;
+      color: #eee;
+      font-size: 30px;
+    }
+    #fileWrapper {
+    	transition: all 0.1s ease;
+    }
+    #fileWrapper:hover {
+    	opacity: 1!important;
+    }
+    #visualizer_wrapper {
+      margin: auto;
+      max-width: 800px;
+    }
+    .below {
+      margin-top: 10px;
+    }
+
+    </style>
+    </head>
+  <body>
+    <div id="wrapper">
+      <div id="visualizer_wrapper">
+        <canvas id="canvas" width="800" height="350"></canvas><br>
+        <div class="below">
+          HTML5 SPECTRUM VISUALIZER
+          <div id="fileWrapper" class="file_wrapper">
+            <div id="info"></div>
+            <label for="uploadedFile"></label>
+            <input type="file" id="uploadedFile"></input>
+          </div>
         </div>
-        <footer>
-            <small>Star me on <a href="https://github.com/Wayou/HTML5_Audio_Visualizer"  target="_blank">GitHub</a></small>
-        </footer>
-        <script type="text/javascript" src="js/html5_audio_visualizer.js"></script>
-    </body>
+      </div>
+    </div>
+    <script type="text/javascript" src="js/html5_audio_visualizer.js"></script>
+  </body>
 </html>

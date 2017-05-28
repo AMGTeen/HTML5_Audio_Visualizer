@@ -32,7 +32,6 @@ Visualizer.prototype = {
         try {
             this.audioContext = new AudioContext();
         } catch (e) {
-            this._updateInfo('!Your browser does not support AudioContext', false);
             console.log(e);
         }
     },
@@ -54,7 +53,6 @@ Visualizer.prototype = {
                     that.forceStop = true;
                 };
                 document.getElementById('fileWrapper').style.opacity = 1;
-                that._updateInfo('Uploading', true);
                 //once the file is ready,start the visualizer
                 that._start();
             };
@@ -62,7 +60,6 @@ Visualizer.prototype = {
         //listen the drag & drop
         dropContainer.addEventListener("dragenter", function() {
             document.getElementById('fileWrapper').style.opacity = 1;
-            that._updateInfo('Drop it on the page', true);
         }, false);
         dropContainer.addEventListener("dragover", function(e) {
             e.stopPropagation();
@@ -71,15 +68,13 @@ Visualizer.prototype = {
             e.dataTransfer.dropEffect = 'copy';
         }, false);
         dropContainer.addEventListener("dragleave", function() {
-            document.getElementById('fileWrapper').style.opacity = 0.2;
-            that._updateInfo(that.info, false);
+            document.getElementById('fileWrapper').style.opacity = 0;
         }, false);
         dropContainer.addEventListener("drop", function(e) {
             e.stopPropagation();
             e.preventDefault();
             if (that.audioContext===null) {return;};
             document.getElementById('fileWrapper').style.opacity = 1;
-            that._updateInfo('Uploading', true);
             //get the dropped file
             that.file = e.dataTransfer.files[0];
             if (that.status === 1) {
@@ -102,21 +97,16 @@ Visualizer.prototype = {
             if (audioContext === null) {
                 return;
             };
-            that._updateInfo('Decoding the audio', true);
             audioContext.decodeAudioData(fileResult, function(buffer) {
-                that._updateInfo('Decode succussfully,start the visualizer', true);
                 that._visualize(audioContext, buffer);
             }, function(e) {
-                that._updateInfo('!Fail to decode the file', false);
                 console.error(e);
             });
         };
         fr.onerror = function(e) {
-            that._updateInfo('!Fail to read the file', false);
             console.error(e);
         };
         //assign the file to the reader
-        this._updateInfo('Starting read the file', true);
         fr.readAsArrayBuffer(file);
     },
     _visualize: function(audioContext, buffer) {
@@ -147,12 +137,20 @@ Visualizer.prototype = {
         audioBufferSouceNode.onended = function() {
             that._audioEnd(that);
         };
-        this._updateInfo('Playing ' + this.fileName, false);
-        this.info = 'Playing ' + this.fileName;
-        document.getElementById('fileWrapper').style.opacity = 0.2;
+        document.getElementById('fileWrapper').style.opacity = 0;
         this._drawSpectrum(analyser);
     },
     _drawSpectrum: function(analyser) {
+      //
+      //
+      //
+      //
+      //   COLOR
+      //
+      //
+      //
+      //
+      var color = '#eee';
         var that = this,
             canvas = document.getElementById('canvas'),
             cwidth = canvas.width,
@@ -160,14 +158,14 @@ Visualizer.prototype = {
             meterWidth = 10, //width of the meters in the spectrum
             gap = 2, //gap between meters
             capHeight = 2,
-            capStyle = '#fff',
+            capStyle = 'transparent',
             meterNum = 800 / (10 + 2), //count of the meters
             capYPositionArray = []; ////store the vertical position of hte caps for the preivous frame
         ctx = canvas.getContext('2d'),
         gradient = ctx.createLinearGradient(0, 0, 0, 300);
-        gradient.addColorStop(1, '#0f0');
-        gradient.addColorStop(0.5, '#ff0');
-        gradient.addColorStop(0, '#f00');
+        gradient.addColorStop(1, color);
+        gradient.addColorStop(0.5, color);
+        gradient.addColorStop(0, color);
         var drawMeter = function() {
             var array = new Uint8Array(analyser.frequencyBinCount);
             analyser.getByteFrequencyData(array);
@@ -195,13 +193,13 @@ Visualizer.prototype = {
                 ctx.fillStyle = capStyle;
                 //draw the cap, with transition effect
                 if (value < capYPositionArray[i]) {
-                    ctx.fillRect(i * 12, cheight - (--capYPositionArray[i]), meterWidth, capHeight);
+                    ctx.fillRect(i * 60, cheight - (--capYPositionArray[i]), meterWidth, capHeight);
                 } else {
-                    ctx.fillRect(i * 12, cheight - value, meterWidth, capHeight);
+                    ctx.fillRect(i * 60, cheight - value, meterWidth, capHeight);
                     capYPositionArray[i] = value;
                 };
                 ctx.fillStyle = gradient; //set the filllStyle to gradient for a better look
-                ctx.fillRect(i * 12 /*meterWidth+gap*/ , cheight - value + capHeight, meterWidth, cheight); //the meter
+                ctx.fillRect(i * 20 /*meterWidth+gap*/ , cheight - value + capHeight, meterWidth, cheight); //the meter
             }
             that.animationId = requestAnimationFrame(drawMeter);
         }
@@ -214,31 +212,10 @@ Visualizer.prototype = {
             return;
         };
         this.status = 0;
-        var text = 'HTML5 Audio API showcase | An Audio Viusalizer';
+        var text = '';
         document.getElementById('fileWrapper').style.opacity = 1;
         document.getElementById('info').innerHTML = text;
         instance.info = text;
         document.getElementById('uploadedFile').value = '';
-    },
-    _updateInfo: function(text, processing) {
-        var infoBar = document.getElementById('info'),
-            dots = '...',
-            i = 0,
-            that = this;
-        infoBar.innerHTML = text + dots.substring(0, i++);
-        if (this.infoUpdateId !== null) {
-            clearTimeout(this.infoUpdateId);
-        };
-        if (processing) {
-            //animate dots at the end of the info text
-            var animateDot = function() {
-                if (i > 3) {
-                    i = 0
-                };
-                infoBar.innerHTML = text + dots.substring(0, i++);
-                that.infoUpdateId = setTimeout(animateDot, 250);
-            }
-            this.infoUpdateId = setTimeout(animateDot, 250);
-        };
     }
 }
